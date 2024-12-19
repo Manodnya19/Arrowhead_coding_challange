@@ -1,5 +1,6 @@
 import requests
 import json
+from flask import Flask, Response
 
 def fetch_user_data():
     # URL to fetch user data from
@@ -10,9 +11,9 @@ def fetch_user_data():
     
     # Check if the request was successful
     if response.status_code == 200:
-        # Parse the JSON response
-        user_data = response.json()
-        return user_data
+        # user_data = response.json()
+        return Response(response.content, content_type='application/json')
+        # return user_data
     else:
         print("Failed to retrieve data")
         return None

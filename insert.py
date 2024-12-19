@@ -50,7 +50,13 @@ def create_database():
     print("SQLite database and tables created successfully.")
 
 
-def insert_user_data(json_data):
+def insert_user_data(response_obj):
+    # Parse the JSON data from the Response object
+    if hasattr(response_obj, 'data'):  # Check if it's a Flask Response object
+        json_data = json.loads(response_obj.data)
+    else:
+        json_data = response_obj  # Assume it's already parsed JSON
+
     # Connect to the SQLite database
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()

@@ -1,6 +1,8 @@
 import sqlite3
 import json
+from flask import Flask, jsonify
 
+app = Flask(__name__)
 # Define SQL queries as static variables
 SELECT_USER_COLUMNS = """
     SELECT 
@@ -69,6 +71,7 @@ def format_user_data(record):
 
     return user_data
 
+@app.route('/sort_records_by_name', methods=['GET'])
 def sort_records_by_name():
     conn, cursor = connect_to_db()
 
@@ -78,13 +81,18 @@ def sort_records_by_name():
     # Fetch all sorted records
     sorted_records = cursor.fetchall()
 
-    # Format and print the sorted records in JSON format
-    for record in sorted_records:
-        user_data = format_user_data(record)
-        print(json.dumps(user_data, indent=4))
+    # Format the records into JSON
+    formatted_records = [format_user_data(record) for record in sorted_records]
 
     # Close the connection
     close_db_connection(conn)
+
+    # Return the formatted records without sorting keys
+    return app.response_class(
+        response=json.dumps(formatted_records, indent=4, sort_keys=False),
+        mimetype='application/json'
+    )
+
 
 def update_email(user_id, new_email):
     try:
@@ -105,9 +113,9 @@ def update_email(user_id, new_email):
         
         # Check if the update was successful
         if cursor.rowcount > 0:
-            print(f"User with ID {user_id} had their email updated to {new_email}.")
+            return (f"User with ID {user_id} had their email updated to {new_email}.")
         else:
-            print(f"No user found with ID {user_id}.")
+            return (f"No user found with ID {user_id}.")
     
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")
@@ -115,6 +123,7 @@ def update_email(user_id, new_email):
     finally:
         close_db_connection(conn)
 
+@app.route('/filter_users_by_longitude', methods=['POST'])
 def filter_users_by_longitude(min_longitude):
     try:
         conn, cursor = connect_to_db()
@@ -124,16 +133,21 @@ def filter_users_by_longitude(min_longitude):
         results = cursor.fetchall()
         
         # Prepare data in JSON format
-        users_list = [format_user_data(row) for row in results]
-
+        
+        formatted_records = [format_user_data(record) for record in results]
         # If there are results, print in JSON format
-        if users_list:
-            print(json.dumps(users_list, indent=4))
-        else:
-            print(f"No users found with longitude greater than {min_longitude}.")
+        # if users_list:
+        #     print(json.dumps(users_list, indent=4))
+        # else:
+        #     print(f"No users found with longitude greater than {min_longitude}.")
     
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")
     
     finally:
         close_db_connection(conn)
+        
+    return app.response_class(
+        response=json.dumps(formatted_records, indent=4, sort_keys=False),
+        mimetype='application/json'
+    )

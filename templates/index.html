@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrowhead: User Data Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Arrowhead: User Data Management System</h1>
+    <div class="container">
+        <button onclick="fetchData()">Fetch Data</button>
+        <button onclick="createDatabase()">Create Database</button>
+        <button onclick="insertData()">Insert Data</button>
+        <button onclick="sortData()">Sort Data</button>
+        <button onclick="updateEmail()">Update Email</button>
+        <button onclick="filterUsers()">Filter Users</button>
+    </div>
+
+    <div class="output" id="output">
+        <pre id="outputContent">Results will be displayed here.</pre>
+    </div>
+
+    <script>
+        function showOutput(data) {
+            document.getElementById('outputContent').textContent = JSON.stringify(data, null, 4);
+        }
+
+        function fetchData() {
+            fetch('/fetch_data')
+                .then(response => response.json())
+                .then(data => showOutput(data))
+                .catch(error => showOutput({ message: "Error fetching data" }));
+        }
+
+        function createDatabase() {
+            fetch('/create_db', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => showOutput(data))
+                .catch(error => showOutput({ message: "Error creating database" }));
+        }
+
+        function insertData() {
+            fetch('/insert_data', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => showOutput(data))
+                .catch(error => showOutput({ message: "Error inserting data" }));
+        }
+
+        function sortData() {
+            fetch('/sort_data')
+                .then(response => response.json())
+                .then(data => showOutput(data))
+                .catch(error => showOutput({ message: "Error sorting data" }));
+        }
+
+        function updateEmail() {
+            const userId = prompt("Enter User ID:");
+            const newEmail = prompt("Enter new email address:");
+
+            fetch('/update_email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, new_email: newEmail })
+            })
+                .then(response => response.json())
+                .then(data => showOutput(data))
+                .catch(error => showOutput({ message: "Error updating email" }));
+        }
+
+        function filterUsers() {
+            const minLongitude = prompt("Enter minimum longitude:");
+
+            fetch('/filter_users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ min_longitude: minLongitude })
+            })
+                .then(response => response.json())
+                .then(data => showOutput(data))
+                .catch(error => showOutput({ message: "Error filtering users" }));
+        }
+    </script>
+
+</body>
+</html>
